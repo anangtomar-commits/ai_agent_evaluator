@@ -1,0 +1,93 @@
+[
+  {
+    "section_id": null,
+    "section_title": "2. Business Objectives & Goals",
+    "requirements": [
+      {
+        "id": "REQ-001",
+        "original_id": "G-01",
+        "type": "Functional",
+        "statement": "The system must reduce the average time a seller waits before a buyer question is answered to less than 30 seconds for property-related questions by automating responses via the AI chatbot.",
+        "priority": "High",
+        "testable": true,
+        "acceptance_criteria": "Average response time for property-related questions is less than 30 seconds",
+        "tags": [
+          "behavior",
+          "high-priority",
+          "performance"
+        ],
+        "category": "behavior",
+        "ambiguity_flag": false,
+        "source_text": "Reduce the average time a seller waits before a buyer question is answered from >2 hours to <30 seconds"
+      },
+      {
+        "id": "REQ-002",
+        "original_id": "G-02",
+        "type": "Functional",
+        "statement": "The system must support English, Hindi, and Hinglish so that at least 85% of Clinqup's target user base can interact with the bot in their preferred language.",
+        "priority": "High",
+        "testable": true,
+        "acceptance_criteria": "At least 85% of target user base can interact with the bot in their preferred language",
+        "tags": [
+          "interface",
+          "high-priority",
+          "language-support"
+        ],
+        "category": "interface",
+        "ambiguity_flag": false,
+        "source_text": "Support English, Hindi, and Hinglish so that ≥85 % of Clinqup's target user base can interact with the bot in their preferred language"
+      },
+      {
+        "id": "REQ-003",
+        "original_id": "G-03",
+        "type": "Functional",
+        "statement": "The system must increase the share of chat conversations that result in a site visit or inquiry form submission by 15% compared to the pre-chatbot baseline.",
+        "priority": "High",
+        "testable": true,
+        "acceptance_criteria": "Share of chat conversations resulting in site visit or inquiry form submission increases by 15% compared to pre-chatbot baseline",
+        "tags": [
+          "behavior",
+          "high-priority",
+          "conversion-rate"
+        ],
+        "category": "behavior",
+        "ambiguity_flag": false,
+        "source_text": "Increase the share of chat conversations that result in a site visit or inquiry form submission by 15 % compared to the pre-chatbot baseline"
+      },
+      {
+        "id": "REQ-004",
+        "original_id": "G-04",
+        "type": "Functional",
+        "statement": "The system must allow newly listed properties with zero real buyer messages to display realistic sample conversations.",
+        "priority": "Medium",
+        "testable": true,
+        "acceptance_criteria": "Newly listed properties with zero real buyer messages display realistic sample conversations",
+        "tags": [
+          "interface",
+          "medium-priority",
+          "user-experience"
+        ],
+        "category": "interface",
+        "ambiguity_flag": false,
+        "source_text": "Allow newly listed properties with zero real buyer messages to display realistic sample conversations"
+      },
+      {
+        "id": "REQ-005",
+        "original_id": "G-05",
+        "type": "Non-Functional",
+        "statement": "The system must achieve zero-downtime deployments with a fully automated test + build + push pipeline that runs on every merge to main and blocks bad releases via automated tests.",
+        "priority": "High",
+        "testable": true,
+        "acceptance_criteria": "System achieves zero-downtime deployments with fully automated test + build + push pipeline",
+        "tags": [
+          "performance",
+          "high-priority",
+          "reliability"
+        ],
+        "category": "performance",
+        "ambiguity_flag": false,
+        "source_text": "Achieve zero-downtime deployments with a fully automated test + build + push pipeline that runs on every merge to main and blocks bad releases via automated tests"
+      }
+    ]
+  }
+]
