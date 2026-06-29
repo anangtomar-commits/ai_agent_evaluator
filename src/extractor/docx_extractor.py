@@ -92,7 +92,6 @@ def _render_table(table: Table) -> str:
     rows = [_dedup_merged_cells(row) for row in rows]
 
     col_count = max(len(r) for r in rows)
-    # Pad shorter rows
     rows = [r + [""] * (col_count - len(r)) for r in rows]
 
     col_widths = [max(len(r[i]) for r in rows) for i in range(col_count)]

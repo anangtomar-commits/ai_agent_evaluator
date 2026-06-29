@@ -3,26 +3,20 @@ import tempfile
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
 
 from extractor.extractor import extract, SUPPORTED_EXTENSIONS
 from api.models import ExtractionResponse
 
 router = APIRouter(prefix="/extract", tags=["Text Extraction"])
 
-ALLOWED_CONTENT_TYPES = {
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-}
-
 
 @router.post(
     "/",
     response_model=ExtractionResponse,
-    summary="Extract text sections from a BRD document",
+    summary="Extract text chunks from a BRD document",
     description=(
         "Upload a `.pdf` or `.docx` file. "
-        "Returns the document text split into sections, each with a heading and its body text."
+        "Returns document text as token-bounded chunks (~6 000 tokens each, 600-token overlap)."
     ),
 )
 async def extract_document(
