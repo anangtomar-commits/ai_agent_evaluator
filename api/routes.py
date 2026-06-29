@@ -41,9 +41,7 @@ async def extract_document(
         tmp_path = tmp.name
 
     try:
-        result = extract(tmp_path)
-        # Restore original filename in the response
-        result["file_name"] = file.filename
+        result = extract(tmp_path, original_name=file.filename)
         return result
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

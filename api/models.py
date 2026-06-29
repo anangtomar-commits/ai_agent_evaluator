@@ -1,11 +1,5 @@
-from pydantic import BaseModel
+from pydantic import RootModel
 
 
-class Section(BaseModel):
-    heading: str
-    text: str
-
-
-class ExtractionResponse(BaseModel):
-    file_name: str
-    file_text: list[Section]
+# {'filename.ext': ['chunk 1 text', 'chunk 2 text', ...]}
+ExtractionResponse = RootModel[dict[str, list[str]]]
