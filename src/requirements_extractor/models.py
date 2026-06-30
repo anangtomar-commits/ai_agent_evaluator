@@ -43,6 +43,14 @@ class Requirement(BaseModel):
     tags: list[str]
     """Lowercase kebab-case labels for test-suite filtering, e.g. ["functional", "high-priority", "language"]."""
 
+    # ── Test strategy ─────────────────────────────────────────────────────────
+    test_strategy: str | None = None
+    """
+    Test strategy assigned by the Test Strategy Classifier phase:
+      Conversational | Performance | Security | BusinessKPI | Infrastructure
+    Populated after the classifier runs; None until then.
+    """
+
     # ── Source traceability ───────────────────────────────────────────────────
     source_text: str | None = None
     """Verbatim BRD excerpt (≤ 200 chars) this requirement was drawn from."""
