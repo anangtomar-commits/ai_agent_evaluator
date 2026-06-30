@@ -47,3 +47,4 @@ coverage.xml
 # Sample / test documents (keep out of repo)
 sample_docs/
 test_docs/
+outputs/
