@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from db import pipeline_runs
 from extractor.pdf_extractor import extract_text_from_pdf
 from extractor.docx_extractor import extract_text_from_docx
 from extractor.chunker import chunk_sections
@@ -14,12 +15,15 @@ _EXTRACTORS = {
 
 
 def _extract_and_chunk(
-    file_path: str, original_name: str = None, project_id: str = None
+    file_path: str,
+    original_name: str = None,
+    project_id: str = None,
+    run_id: str = None,
 ) -> tuple[list[dict], list[str]]:
     """
-    Runs section extraction + chunking and persists both to outputs/text_extractor/.
-    Shared by extract() and extract_sections() so every entry point into the
-    text-extraction phase produces the same saved artifact.
+    Runs section extraction + chunking and persists both to outputs/text_extractor/
+    and, when run_id is set, to the pipeline_runs row for this run (this is always
+    the first phase to execute, so it also creates that row).
     """
     path = Path(file_path)
 
@@ -49,22 +53,35 @@ def _extract_and_chunk(
         project_id=project_id,
     )
 
+    if run_id:
+        pipeline_runs.create_run(run_id, project_name=project_id, document_name=file_name)
+        pipeline_runs.update_output(run_id, "document_text", sections)
+        pipeline_runs.update_output(run_id, "semantic_chunks", chunks)
+
     return sections, chunks
 
 
-def extract(file_path: str, original_name: str = None, project_id: str = None) -> dict:
+def extract(
+    file_path: str,
+    original_name: str = None,
+    project_id: str = None,
+    run_id: str = None,
+) -> dict:
     """
     Accepts a path to a .pdf or .docx file.
     Returns: {'filename.ext': ['chunk 1', 'chunk 2', ...]}
     Also saves the raw sections and chunks to outputs/text_extractor/.
     """
     file_name = original_name or Path(file_path).name
-    _, chunks = _extract_and_chunk(file_path, original_name, project_id)
+    _, chunks = _extract_and_chunk(file_path, original_name, project_id, run_id)
     return {file_name: chunks}
 
 
 def extract_sections(
-    file_path: str, original_name: str = None, project_id: str = None
+    file_path: str,
+    original_name: str = None,
+    project_id: str = None,
+    run_id: str = None,
 ) -> list[dict]:
     """
     Returns the raw sections list: [{'heading': ..., 'text': ...}, ...]
@@ -72,5 +89,5 @@ def extract_sections(
     Also saves the raw sections and chunks to outputs/text_extractor/, since this
     is the entry point the requirements-extraction pipeline actually calls.
     """
-    sections, _ = _extract_and_chunk(file_path, original_name, project_id)
+    sections, _ = _extract_and_chunk(file_path, original_name, project_id, run_id)
     return sections

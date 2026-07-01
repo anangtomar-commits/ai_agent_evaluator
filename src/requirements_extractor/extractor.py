@@ -6,6 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from db import pipeline_runs
 from extractor.extractor import extract_sections
 from output_store import save_phase_output
 from requirements_extractor.models import Requirement, SectionRequirements
@@ -144,6 +145,7 @@ def _call_llm(client: OpenAI, heading: str, text: str, model: str) -> list[dict]
         ],
         tools=[_TOOL_SCHEMA],
         tool_choice={"type": "function", "function": {"name": "extract_requirements"}},
+        max_tokens=4096,
     )
 
     tool_call = response.choices[0].message.tool_calls[0]
@@ -178,6 +180,7 @@ def extract_requirements(
     original_name: str = None,
     model: str = _DEFAULT_MODEL,
     project_id: str = None,
+    run_id: str = None,
 ) -> list[SectionRequirements]:
     """
     Full pipeline: extract sections → call Groq per section → return structured requirements.
@@ -186,7 +189,7 @@ def extract_requirements(
     path = Path(file_path)
     file_name = original_name or path.name
 
-    sections = extract_sections(file_path, original_name, project_id)
+    sections = extract_sections(file_path, original_name, project_id, run_id)
 
     client = _build_client()
     results: list[SectionRequirements] = []
@@ -230,5 +233,10 @@ def extract_requirements(
         data=[sr.model_dump() for sr in results],
         project_id=project_id,
     )
+
+    if run_id:
+        pipeline_runs.update_output(
+            run_id, "requirements", [sr.model_dump() for sr in results]
+        )
 
     return results

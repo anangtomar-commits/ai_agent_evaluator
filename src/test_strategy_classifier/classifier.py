@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from db import pipeline_runs
 from extractor.extractor import extract_sections
 from output_store import save_phase_output
 from requirements_extractor.extractor import extract_requirements
@@ -81,6 +82,7 @@ def _call_llm(client: OpenAI, requirements_json: str, model: str) -> dict[str, s
         ],
         tools=[_TOOL_SCHEMA],
         tool_choice={"type": "function", "function": {"name": "classify_strategies"}},
+        max_tokens=4096,
     )
 
     tool_call = response.choices[0].message.tool_calls[0]
@@ -127,6 +129,7 @@ def classify_from_file(
     original_name: str = None,
     model: str = _DEFAULT_MODEL,
     project_id: str = None,
+    run_id: str = None,
 ) -> list[SectionRequirements]:
     """
     Full pipeline: text extraction → requirements extraction → strategy classification.
@@ -136,7 +139,9 @@ def classify_from_file(
     file_name = original_name or path.name
 
     # Phase 2: requirements extraction
-    section_requirements = extract_requirements(file_path, original_name, model, project_id)
+    section_requirements = extract_requirements(
+        file_path, original_name, model, project_id, run_id
+    )
 
     # Phase 3: strategy classification
     classified = classify_strategies(section_requirements, model)
@@ -147,5 +152,10 @@ def classify_from_file(
         data=[sr.model_dump() for sr in classified],
         project_id=project_id,
     )
+
+    if run_id:
+        pipeline_runs.update_output(
+            run_id, "requirements", [sr.model_dump() for sr in classified]
+        )
 
     return classified

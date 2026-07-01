@@ -4,6 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from db import pipeline_runs
 from output_store import save_phase_output
 from requirements_extractor.models import Requirement, SectionRequirements
 from scenario_generation.models import TestPlan
@@ -83,6 +84,7 @@ def generate_from_file(
     original_name: str = None,
     model: str = _DEFAULT_MODEL,
     project_id: str = None,
+    run_id: str = None,
 ) -> list[TestPlan]:
     """
     Full pipeline: text extraction → requirements extraction → strategy
@@ -92,7 +94,7 @@ def generate_from_file(
     path = Path(file_path)
     file_name = original_name or path.name
 
-    classified = classify_from_file(file_path, original_name, model, project_id)
+    classified = classify_from_file(file_path, original_name, model, project_id, run_id)
     plans = generate_scenarios(classified, model)
 
     save_phase_output(
@@ -101,5 +103,8 @@ def generate_from_file(
         data=[plan.model_dump() for plan in plans],
         project_id=project_id,
     )
+
+    if run_id:
+        pipeline_runs.update_output(run_id, "scenarios", [plan.model_dump() for plan in plans])
 
     return plans

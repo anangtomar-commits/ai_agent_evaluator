@@ -144,6 +144,7 @@ class ConversationScenarioGenerator(BaseScenarioGenerator):
             ],
             tools=[_TOOL_SCHEMA],
             tool_choice={"type": "function", "function": {"name": "generate_scenarios"}},
+            max_tokens=4096,
         )
         tool_call = response.choices[0].message.tool_calls[0]
         return json.loads(tool_call.function.arguments).get("scenarios", [])

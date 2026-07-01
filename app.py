@@ -1,14 +1,25 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from api.routes import router as extraction_router
 from api.routes_requirements import router as requirements_router
 from api.routes_classifier import router as classifier_router
 from api.routes_scenarios import router as scenarios_router
+from db import pipeline_runs
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    pipeline_runs.ensure_schema()
+    yield
+
 
 app = FastAPI(
     title="AI Agent Evaluator",
     description="Extracts text, requirements, test strategies, and test scenarios from BRD documents (.pdf or .docx).",
     version="0.4.0",
+    lifespan=lifespan,
 )
 
 app.include_router(extraction_router)
