@@ -82,6 +82,7 @@ def generate_from_file(
     file_path: str,
     original_name: str = None,
     model: str = _DEFAULT_MODEL,
+    project_id: str = None,
 ) -> list[TestPlan]:
     """
     Full pipeline: text extraction → requirements extraction → strategy
@@ -91,13 +92,14 @@ def generate_from_file(
     path = Path(file_path)
     file_name = original_name or path.name
 
-    classified = classify_from_file(file_path, original_name, model)
+    classified = classify_from_file(file_path, original_name, model, project_id)
     plans = generate_scenarios(classified, model)
 
     save_phase_output(
         phase="scenario_generator",
         doc_name=file_name,
         data=[plan.model_dump() for plan in plans],
+        project_id=project_id,
     )
 
     return plans

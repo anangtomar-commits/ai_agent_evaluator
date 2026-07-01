@@ -177,6 +177,7 @@ def extract_requirements(
     file_path: str,
     original_name: str = None,
     model: str = _DEFAULT_MODEL,
+    project_id: str = None,
 ) -> list[SectionRequirements]:
     """
     Full pipeline: extract sections → call Groq per section → return structured requirements.
@@ -185,7 +186,7 @@ def extract_requirements(
     path = Path(file_path)
     file_name = original_name or path.name
 
-    sections = extract_sections(file_path, original_name)
+    sections = extract_sections(file_path, original_name, project_id)
 
     client = _build_client()
     results: list[SectionRequirements] = []
@@ -227,6 +228,7 @@ def extract_requirements(
         phase="requirements_extractor",
         doc_name=file_name,
         data=[sr.model_dump() for sr in results],
+        project_id=project_id,
     )
 
     return results

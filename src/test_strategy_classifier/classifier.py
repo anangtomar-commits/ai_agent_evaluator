@@ -126,6 +126,7 @@ def classify_from_file(
     file_path: str,
     original_name: str = None,
     model: str = _DEFAULT_MODEL,
+    project_id: str = None,
 ) -> list[SectionRequirements]:
     """
     Full pipeline: text extraction → requirements extraction → strategy classification.
@@ -135,7 +136,7 @@ def classify_from_file(
     file_name = original_name or path.name
 
     # Phase 2: requirements extraction
-    section_requirements = extract_requirements(file_path, original_name, model)
+    section_requirements = extract_requirements(file_path, original_name, model, project_id)
 
     # Phase 3: strategy classification
     classified = classify_strategies(section_requirements, model)
@@ -144,6 +145,7 @@ def classify_from_file(
         phase="test_strategy_classifier",
         doc_name=file_name,
         data=[sr.model_dump() for sr in classified],
+        project_id=project_id,
     )
 
     return classified

@@ -25,6 +25,7 @@ router = APIRouter(prefix="/classify", tags=["Test Strategy Classifier"])
 async def classify_strategies_endpoint(
     file: UploadFile = File(..., description="A .pdf or .docx BRD document"),
     model: str = Query(default="llama-3.3-70b-versatile", description="Groq model to use"),
+    project_id: str = Query(..., description="ID of the project this document belongs to"),
 ):
     suffix = Path(file.filename).suffix.lower()
 
@@ -39,7 +40,9 @@ async def classify_strategies_endpoint(
         tmp_path = tmp.name
 
     try:
-        results = classify_from_file(tmp_path, original_name=file.filename, model=model)
+        results = classify_from_file(
+            tmp_path, original_name=file.filename, model=model, project_id=project_id
+        )
         return results
     except EnvironmentError as exc:
         raise HTTPException(status_code=500, detail=str(exc))

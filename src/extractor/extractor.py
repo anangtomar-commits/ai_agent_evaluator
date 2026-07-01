@@ -13,11 +13,13 @@ _EXTRACTORS = {
 }
 
 
-def extract(file_path: str, original_name: str = None) -> dict:
+def _extract_and_chunk(
+    file_path: str, original_name: str = None, project_id: str = None
+) -> tuple[list[dict], list[str]]:
     """
-    Accepts a path to a .pdf or .docx file.
-    Returns: {'filename.ext': ['chunk 1', 'chunk 2', ...]}
-    Also saves the raw sections and chunks to outputs/text_extractor/.
+    Runs section extraction + chunking and persists both to outputs/text_extractor/.
+    Shared by extract() and extract_sections() so every entry point into the
+    text-extraction phase produces the same saved artifact.
     """
     path = Path(file_path)
 
@@ -44,25 +46,31 @@ def extract(file_path: str, original_name: str = None) -> dict:
         phase="text_extractor",
         doc_name=file_name,
         data={"document": file_name, "sections": sections, "chunks": chunks},
+        project_id=project_id,
     )
 
+    return sections, chunks
+
+
+def extract(file_path: str, original_name: str = None, project_id: str = None) -> dict:
+    """
+    Accepts a path to a .pdf or .docx file.
+    Returns: {'filename.ext': ['chunk 1', 'chunk 2', ...]}
+    Also saves the raw sections and chunks to outputs/text_extractor/.
+    """
+    file_name = original_name or Path(file_path).name
+    _, chunks = _extract_and_chunk(file_path, original_name, project_id)
     return {file_name: chunks}
 
 
-def extract_sections(file_path: str, original_name: str = None) -> list[dict]:
+def extract_sections(
+    file_path: str, original_name: str = None, project_id: str = None
+) -> list[dict]:
     """
     Returns the raw sections list: [{'heading': ..., 'text': ...}, ...]
     Used by downstream phases that need section-level granularity.
+    Also saves the raw sections and chunks to outputs/text_extractor/, since this
+    is the entry point the requirements-extraction pipeline actually calls.
     """
-    path = Path(file_path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    ext = path.suffix.lower()
-    if ext not in SUPPORTED_EXTENSIONS:
-        raise ValueError(
-            f"Unsupported file type '{ext}'. Supported: {', '.join(SUPPORTED_EXTENSIONS)}"
-        )
-
-    return _EXTRACTORS[ext](file_path)
+    sections, _ = _extract_and_chunk(file_path, original_name, project_id)
+    return sections

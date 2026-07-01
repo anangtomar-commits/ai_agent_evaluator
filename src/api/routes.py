@@ -2,7 +2,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Query
 
 from extractor.extractor import extract, SUPPORTED_EXTENSIONS
 from api.models import ExtractionResponse
@@ -21,6 +21,7 @@ router = APIRouter(prefix="/extract", tags=["Text Extraction"])
 )
 async def extract_document(
     file: UploadFile = File(..., description="A .pdf or .docx BRD document"),
+    project_id: str = Query(..., description="ID of the project this document belongs to"),
 ):
     suffix = Path(file.filename).suffix.lower()
 
@@ -35,7 +36,7 @@ async def extract_document(
         tmp_path = tmp.name
 
     try:
-        result = extract(tmp_path, original_name=file.filename)
+        result = extract(tmp_path, original_name=file.filename, project_id=project_id)
         return result
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

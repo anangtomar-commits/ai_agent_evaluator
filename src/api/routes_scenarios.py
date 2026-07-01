@@ -25,6 +25,7 @@ router = APIRouter(prefix="/scenarios", tags=["Scenario Generator"])
 async def generate_scenarios_endpoint(
     file: UploadFile = File(..., description="A .pdf or .docx BRD document"),
     model: str = Query(default="llama-3.3-70b-versatile", description="Groq model to use"),
+    project_id: str = Query(..., description="ID of the project this document belongs to"),
 ):
     suffix = Path(file.filename).suffix.lower()
 
@@ -39,7 +40,9 @@ async def generate_scenarios_endpoint(
         tmp_path = tmp.name
 
     try:
-        return generate_from_file(tmp_path, original_name=file.filename, model=model)
+        return generate_from_file(
+            tmp_path, original_name=file.filename, model=model, project_id=project_id
+        )
     except EnvironmentError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
     except Exception as exc:
